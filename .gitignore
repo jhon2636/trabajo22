@@ -6,3 +6,63 @@
 
 # Compiled Pre-Linked Libraries
 *.plx
+
+create table tbl_a (
+id number (12),
+nombre_p varchar (50), 
+tipo varchar (35),
+costo number (10));
+
+create table tbl_b (descripcion varchar (100));
+select*from tbl_a;
+select*from tbl_b;
+insert into tbl_a values (001, 'donitas', 'pan', 20);
+insert into tbl_a values (002, 'rebanada', 'pan', 10);
+insert into tbl_a values (003, 'paletas', 'botana', 25);
+insert into tbl_a values (004, 'nito', 'pan', 15);
+insert into tbl_a values (005, 'buñuelos', 'pan', 20);
+insert into tbl_a values (006, 'doritos', 'botana', 15);
+insert into tbl_a values (007, 'chetos', 'botana', 56);
+insert into tbl_a values (023, 'Sabritas adobadas', 'botana', 35);
+insert into tbl_a values (008, 'crujitos', 'botana', 15);
+insert into tbl_a values (009, 'sabritones', 'botana', 50);
+insert into tbl_a values (010, 'pulparindo', 'dulce', 8);
+insert into tbl_a values (011, 'picafresa', 'dulce', 2);
+insert into tbl_a values (012, 'mazapan', 'dulce', 8);
+insert into tbl_a values (013, 'chocolate', 'dulce', 18);
+insert into tbl_a values (014, 'doritos', 'dulce', 3);
+
+CREATE OR REPLACE TRIGGER tri_isertar_actualizar_eliminar
+BEFORE DELETE OR UPDATE OR INSERT ON tbl_a
+FOR EACH ROW
+BEGIN
+  IF inserting THEN
+    INSERT INTO tbl_b (des) VALUES (:NEW.nombre_p);
+INSERT INTO tbl_a (id, nombre_p, tipo, costo) VALUES (:NEW.id, 'Agregar ', :NEW.tipo, :NEW.costo);
+  END IF;
+    IF updating THEN
+    UPDATE tbl_b SET des = :NEW.nombre_p WHERE des = :OLD.nombre_p;
+    INSERT INTO tbl_b (des) VALUES ('actualizado: ' || :NEW.nombre_p);
+  END IF;
+  IF deleting THEN
+    DELETE FROM tbl_b WHERE des = :OLD.nombre_p;
+    INSERT INTO tbl_b (des) VALUES ('eliminado ' || :OLD.nombre_p);
+  END IF;
+END;
+DELETE FROM tbl_a WHERE tipo = 'dulce';
+DELETE FROM tbl_a WHERE id = 054;
+INSERT INTO tbl_a SELECT 9, 'hershey', tipo, costo FROM tbl_a WHERE id = 001;
+UPDATE tbl_a SET nombre_p = 'tamborcitos y picafresas' WHERE id = 002;
+
+CREATE OR REPLACE TRIGGER tri_inicial
+before INSERT ON tbl_a
+FOR EACH ROW
+DECLARE
+  inicial CHAR(1);
+BEGIN
+  inicial := SUBSTR(:NEW.nombre_p, 1, 1);
+  IF inicial = 'd' THEN
+    INSERT INTO tbl_b (des)
+    VALUES ('producto agregado y empieza con d  ' || TO_CHAR(SYSDATE, 'YYYY-MM-DD HH:MM:SS'));
+  END IF;
+END;
